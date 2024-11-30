@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Upload and API Consumption</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        .numeric {
+            text-align: right; /* Right-align text in cells with the 'numeric' class */
+        }
+    </style>
+</head>
+<body>
+    <h1>Upload File and Get JSON Result</h1>
+    <form id="uploadForm">
+        <input type="file" id="fileInput" name="file">
+        <button type="button" onclick="uploadFile()">Upload</button>
+    </form>
+    <div id="result"></div>
+    <script>
+        async function uploadFile() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+            if (!file) {
+                alert('Please select a file to upload.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            fetch('http://127.0.0.1:1511/bulk', {
+                 method: 'POST',
+                 body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    alert('Network response was not ok');
+                    return;
+                }
+                return response.json();
+            })
+            .then(data => {
+                const resultDiv = document.getElementById('result'); // Select the element with ID 'result'
+                resultDiv.innerHTML = generateTable(data); // Display the JSON data in the 'result' div as a table
+                        })
+            .catch(error => {
+                    console.error('There has been a problem with your fetch operation:', error);
+                });
+        }
+
+        function generateTable(data) {
+            console.log('generateTable called'); // Debugging line
+            console.log(data); // Debugging line to check the data structure
+            
+            if (!data.Nama || !data.Pendidikan || !data.Tahun || !data.Gaji) {
+                console.error('Data structure is not as expected:', data);
+                return '<p>Data structure is not as expected.</p>';
+            }
+
+            let table = '<table>';
+            table += '<tr><th>Nama</th><th>Pendidikan</th><th>Tahun</th><th>Gaji</th></tr>';
+            const keys = Object.keys(data.Nama);
+            keys.forEach(key => {
+                console.log(`Processing key: ${key}`); // Debugging line
+                table += `<tr>
+                            <td>${data.Nama[key]}</td>
+                            <td>${data.Pendidikan[key]}</td>
+                            <td class="numeric">${data.Tahun[key].toFixed(2)}</td>
+                            <td class="numeric">${data.Gaji[key]}</td>
+                          </tr>`;
+            });
+            table += '</table>';
+            return table;
+        }
+    </script>
+</body>
+</html>

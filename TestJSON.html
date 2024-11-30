@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit JSON Data</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        .numeric {
+            text-align: right; /* Right-align text in cells with the 'numeric' class */
+        }
+    </style>
+    <script>
+        async function submitData() {
+            const data = {
+                "Nama": ["Satu", "Dua", "Tiga", "Empat", "Enam"],
+                "Pendidikan": ["S1", "S1", "S2", "S3", "S2"],
+                "Tahun": [3.5, 4.0, 7.0, 10.0, 15.0]
+            };
+
+            try {
+                const response = await fetch('http://127.0.0.1:1511/json', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+
+                const result = await response.json();
+                document.getElementById('result').innerHTML = generateTable(result);
+            } catch (error) {
+                console.error('There has been a problem with your fetch operation:', error);
+            }
+        }
+
+        function generateTable(data) {
+            console.log('generateTable called'); // Debugging line
+            console.log(data); // Debugging line to check the data structure
+            
+            if (!data.Nama || !data.Pendidikan || !data.Tahun || !data.Gaji) {
+                console.error('Data structure is not as expected:', data);
+                return '<p>Data structure is not as expected.</p>';
+            }
+
+            let table = '<table>';
+            table += '<tr><th>Nama</th><th>Pendidikan</th><th>Tahun</th><th>Gaji</th></tr>';
+            const keys = Object.keys(data.Nama);
+            keys.forEach(key => {
+                console.log(`Processing key: ${key}`); // Debugging line
+                table += `<tr>
+                            <td>${data.Nama[key]}</td>
+                            <td>${data.Pendidikan[key]}</td>
+                            <td class="numeric">${data.Tahun[key].toFixed(2)}</td>
+                            <td class="numeric">${data.Gaji[key]}</td>
+                          </tr>`;
+            });
+            table += '</table>';
+            return table;
+        }
+
+    </script>
+</head>
+<body>
+    <button onclick="submitData()">Submit Data</button>
+    <div id="result"></div>
+</body>
+</html>
