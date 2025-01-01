@@ -47,7 +47,7 @@ def classifyJSON():
     try:
         data = request.get_json()
         if not data:
-            return "No JSON data provided", 400
+            return "No JSON data provided --- ", 400
 
         df = pd.DataFrame(data)
         dataFitur = df.iloc[:, [2]]
